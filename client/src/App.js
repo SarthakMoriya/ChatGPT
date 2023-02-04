@@ -5,14 +5,30 @@ import './normal.css'
 function App() {
   const [input, setInput] = useState('');
   const [chatLog, setChatLog] = useState([{
-    user:"gpt",
-    message:"How I can help you Today ?"
-  }])
+    user: "gpt",
+    message: "How I can help you Today ?"
+  },
+  {
+    user: "me",
+    message: "I want to use chatGPT ?"
+  }
+  ])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     // console.log(input)
     setChatLog([...chatLog, { user: 'me', message: `${input}` }]);
+
+    const response = await fetch('http://localhost:5000/', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        //only send the message from chatlog array
+        message: chatLog.map((message) => message.message).join("")
+      })
+    })
+    const data = await response.json();
+    console.log(data)
     console.log(chatLog)
   }
   return (
@@ -24,7 +40,7 @@ function App() {
       </aside>
       <section className='chatbox '>
         <div className='chat-log'>
-          {chatLog.map((message,index) =>(
+          {chatLog.map((message, index) => (
             <ChatMessage key={index} message={message} />
           ))}
         </div>
