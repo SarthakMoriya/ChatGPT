@@ -45,5 +45,12 @@ app.get('/models', async (req, res) => {
         models: response.data
     })
 })
+app.get('/', async (req, res) => {
+    const response = await openai.listEngines();
+    // console.log(response.data.data)
+    res.json({
+        models: response.data
+    })
+})
 
 app.listen(5000, () => { console.log("App Started!") })
