@@ -1,42 +1,71 @@
-import { useState } from 'react'
+import { useState ,useEffect} from 'react'
 import './App.css';
 import './normal.css'
 
 function App() {
   const [input, setInput] = useState('');
-  const [chatLog, setChatLog] = useState([{
-    user: "gpt",
-    message: "How I can help you Today ?"
-  },
-  {
-    user: "me",
-    message: "I want to use chatGPT ?"
-  }
+  const [models, setModels] = useState([])
+  const [currentModel, setCurrentModel] = useState('')
+  const [chatLog, setChatLog] = useState([
+    {
+      user: "gpt",
+      message: "How I can help you Today ?"
+    },
+    {
+      user: "me",
+      message: "I want to use chatGPT ?"
+    }
   ])
+
+  //GetModels
+  function getModels() {
+    fetch('http://localhost:5000/models').then((response) => response.json())
+      .then(data => setModels(data.models.data))
+  }
+  
+  useEffect(()=>{getModels()},[])
+
+  //Clear Chat
+  function clearChat() {
+    setChatLog([])
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // console.log(input)
-    setChatLog([...chatLog, { user: 'me', message: `${input}` }]);
 
+    let chatLogNew = [...chatLog, { user: "me", message: `${input}` }];
+    setInput("")
+    setChatLog(chatLogNew)
+    const messages = chatLogNew.map((message) => message.message).join("\n")
     const response = await fetch('http://localhost:5000/', {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         //only send the message from chatlog array
-        message: chatLog.map((message) => message.message).join("")
+        message: messages,
+        currentModel:currentModel
       })
     })
     const data = await response.json();
     console.log(data)
-    console.log(chatLog)
+    // console.log(chatLog)
+    setChatLog([...chatLogNew, { user: "gpt", message: `${data.message}` }])
   }
   return (
     <div className="App">
       <aside className='sidemenu'>
-        <div className='side-menu-button'>
+        <div className='side-menu-button ' onClick={() => { clearChat() }}>
           <span>+</span>
           New Chat</div>
+          <div className='models'>
+            <select onChange={(e)=>{setCurrentModel(e.target.value)}}>
+              {models.map((model, index) =>(
+                <option value={model.id} key={model.id}>{model.id}</option>
+              ))}
+            </select>
+          </div>
       </aside>
       <section className='chatbox '>
         <div className='chat-log'>
@@ -44,17 +73,6 @@ function App() {
             <ChatMessage key={index} message={message} />
           ))}
         </div>
-        {/* <div className='chat-log '>
-          <div className='chat-message chatgpt'>
-            <div className='chat-message-center'>
-              <div className='avatar chatgpt'>
-              </div>
-              <div className='message'>
-                I am an AI
-              </div>
-            </div>
-          </div>
-        </div> */}
         <div className='chat-input-holder'>
           <form onSubmit={handleSubmit}>
             <input
