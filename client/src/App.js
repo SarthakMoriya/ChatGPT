@@ -19,7 +19,7 @@ function App() {
 
   //GetModels
   function getModels() {
-    fetch('http://localhost:5000/models').then((response) => response.json())
+    fetch('https://chatgptbackend-am83.onrender.com/models').then((response) => response.json())
       .then(data => setModels(data.models.data))
   }
   
@@ -37,7 +37,7 @@ function App() {
     setInput("")
     setChatLog(chatLogNew)
     const messages = chatLogNew.map((message) => message.message).join("\n")
-    const response = await fetch('http://localhost:5000/', {
+    const response = await fetch('https://chatgptbackend-am83.onrender.com/', {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

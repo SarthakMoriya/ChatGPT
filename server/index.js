@@ -45,5 +45,8 @@ app.get('/models', async (req, res) => {
         models: response.data
     })
 })
+app.get('/', async (req, res) => {
+    res.send("HI THERE !")
+})
 
 app.listen(5000, () => { console.log("App Started!") })
